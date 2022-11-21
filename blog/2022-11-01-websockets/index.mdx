@@ -1,0 +1,74 @@
+---
+slug: websockets
+title: WebSockets
+authors: [tyler]
+tags: [websockets]
+---
+
+import WalkieTalkies from "./walkie-talkies.jpeg";
+import Telephone from "./telephone.jpeg";
+import LoudSpeaker from "./loud-speaker.webp";
+
+## tl;dr;
+
+WebSockets are like a phone conversation. Traditional HTTP is like a radio.
+
+## What is a WebSocket?
+
+<div>
+  <img
+    align="left"
+    src={Telephone}
+    width="200"
+    style={{ marginRight: "2rem" }}
+  />
+  <p>
+    A WebSocket connection is like a telephone. Both the client and the server
+    can freely send messages back and forth over a single connection TCP.
+  </p>
+</div>
+<div>
+  <br />
+  <br />
+  <br />
+</div>
+
+<!--truncate-->
+
+<div>
+  <img
+    align="left"
+    src={WalkieTalkies}
+    width="200"
+    style={{ marginRight: "2rem" }}
+  />
+  <p>
+    A traditional http POST, GET, etc. is like a walkie-talkie. The server will
+    only respond to a client's message, they cannot freely send messages back
+    and forth.
+  </p>
+  <p>
+    In this example we're using the proper way to talk on a walkie-talkie, i.e.
+    after the other person has finished talking with "over".
+  </p>
+  <p>
+    An HTTP request also has to create a new connection each time. While this
+    isn't a big deal for a single request, it can be a problem if you're making
+    a lot of them.
+  </p>
+</div>
+
+<div>
+  <img
+    align="left"
+    src={LoudSpeaker}
+    width="200"
+    style={{ marginRight: "2rem" }}
+  />
+  <p>
+    A WebSocket server can also broadcast messages to all connected clients. Not
+    limited to the 1-1 relationship of a traditional http request. This is where
+    the metaphore falls apart. In this sense, a WebSocket is more like a loud
+    speaker.
+  </p>
+</div>

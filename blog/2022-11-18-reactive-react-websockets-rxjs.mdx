@@ -1,0 +1,53 @@
+---
+slug: reactive-react-with-websockets-and-rxjs
+title: Reactive React with WebSockets and RxJS
+authors: [tyler]
+tags: [react, rxjs, websockets]
+---
+
+<div>
+  <blockquote class="twitter-tweet">
+    <p lang="en" dir="ltr">
+      &quot;React&quot; is a terrible name for{" "}
+      <a href="https://twitter.com/reactjs?ref_src=twsrc%5Etfw">@reactjs</a>.
+    </p>
+    &mdash; John Lindquist (@johnlindquist) <a href="https://twitter.com/johnlindquist/status/1109498707475488768?ref_src=twsrc%5Etfw">March 23, 2019</a>
+  </blockquote>{" "}
+  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+</div>
+
+## tl;dr;
+
+Using WebSockets is a great way to build highly interactive real-time apps. Using raw WebSockets in React can be combersome.
+RxJS is a great way to manage streams of data in JavaScript and makes reactive React a delight.
+
+[See the code here](https://github.com/TylerSustare/rpsls). [See the live demo here](https://rpsls1.vercel.app).
+
+<!--truncate-->
+
+## Introduction - Why do this?
+
+React is a great library for building user interfaces, but it's not a great library for building truely
+**reactive** applications. RxJS is a great library for building reactive applications, but it doesn't
+help build user interfaces. This article will show you how to combine the two to build a truely
+reactive application with React.
+
+##### Asside: Angular
+
+I'm sorry to my Angular friends who have been using RxJS for years. I'm not taking anything away
+from Angular. I'm only trying to show you how to use RxJS with React.
+
+## What is Reactive Programming?
+
+Reactive porgramming is a paradigm that allows us to set up our code in a way that we accept incoming
+messages and the front end **reacts** to the changes from the message. Reactive programming is framework/library
+agnostic.
+
+This is slightly different than **React.js** traditionally thinks of the world. We make state or prop changes
+and the virtual dom _reacts_ to those changes.
+
+## RxJS with WebSockets
+
+:::tip
+If you would like an explanation on WebSockets first, check them out in [this quick explanation here](./websockets).
+:::
