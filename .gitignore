@@ -8,9 +8,6 @@
 .docusaurus
 .cache-loader
 
-# examples for blog
-/examples
-
 # Misc
 .DS_Store
 .env.local
