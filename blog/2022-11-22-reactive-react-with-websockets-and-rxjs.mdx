@@ -21,9 +21,9 @@ tags: [react, rxjs, websockets]
 Using WebSockets is a great way to build highly interactive real-time apps. Using raw WebSockets in React can be combersome.
 RxJS is a great way to manage streams of data in JavaScript and makes reactive React a delight.
 
-[See the code here](https://github.com/TylerSustare/rpsls). [See the live demo here](https://rpsls1.vercel.app).
-
 <!--truncate-->
+
+See the code reference at the end of this post.
 
 ## Introduction - Why do this?
 
@@ -178,3 +178,104 @@ return (
 This has been a simple example of how to write Reactive React. In my next article, I'll be putting
 these into more practical use cases. I'll be building a Rock Paper Scissors Lizard Spock game with
 RxJS on the front end and the Serverless framework on the back end for a websocket API in AWS.
+
+[See the code here](https://github.com/TylerSustare/rpsls). [See the live demo here](https://rpsls1.vercel.app).
+
+## Resources - Full code
+
+### Backend WebSocket Server
+
+```js
+// Importing the required modules
+const WebSocketServer = require("ws");
+
+// Creating a new websocket server
+const wss = new WebSocketServer.Server({ port: 8080 });
+
+let globalCount = 0;
+// Creating connection using websocket
+wss.on("connection", (ws) => {
+  console.log("new client connected");
+  // sending & receiving message
+  ws.on("message", (data) => {
+    console.log(`Client has sent us: ${data}`);
+    if (JSON.parse(data)?.operation === "+") {
+      globalCount++;
+    }
+    if (JSON.parse(data)?.operation === "-") {
+      globalCount--;
+    }
+    // send message to all connected clients
+    wss.clients.forEach(function each(client) {
+      if (client.readyState === WebSocketServer.OPEN) {
+        client.send(JSON.stringify({ count: globalCount }));
+      }
+    });
+  });
+  // returned when a client connects
+  return ws.send(JSON.stringify({ count: globalCount }));
+});
+console.log("The WebSocket server is running on port 8080");
+```
+
+### Frontend React App
+
+```tsx
+import { useState } from "react";
+import "./App.css";
+import { webSocket, WebSocketSubjectConfig } from "rxjs/webSocket";
+import { tap } from "rxjs/operators";
+
+interface Message {
+  operation?: "+" | "-";
+  count?: number;
+}
+
+const wsURL = "ws://localhost:8080";
+const wsConfig: WebSocketSubjectConfig<Message> = {
+  url: wsURL,
+  openObserver: {
+    next: () => {
+      console.log("WS connection opened");
+    },
+  },
+  closeObserver: {
+    next: (event) => {
+      // important to do if we're unmounting the component
+      if (event.wasClean) ws.complete();
+    },
+  },
+};
+
+const ws = webSocket<Message>(wsConfig);
+
+function App() {
+  const [count, setCount] = useState(0);
+
+  ws.pipe(
+    tap((data) => {
+      setCount(data?.count ?? 0);
+    })
+  ).subscribe();
+
+  function increment() {
+    setCount(count + 1);
+    ws.next({ operation: "+" });
+  }
+
+  function decrement() {
+    setCount(count - 1);
+    ws.next({ operation: "-" });
+  }
+
+  return (
+    <div className="App">
+      <p>Count {count}</p>
+      <button onClick={increment}>+</button>
+      <button onClick={decrement}>-</button>
+    </div>
+  );
+}
+
+export default App;
+```
