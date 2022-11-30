@@ -1,0 +1,29 @@
+---
+slug: tcp-vs-udp
+title: What is the difference between TCP and UDP?
+authors: [tyler]
+tags: [tcp, udp, networking]
+---
+
+# Explain the difference between TCP and UDP
+
+## TCP (Transmission Control Protocol)
+
+1. TCP is handshake based.
+   a. There must be an established connection between sender and receiver before data can be sent
+   b. 3 way handshake
+   c. TCP is slower to connect because of this handshake
+2. TCP can handle and recover from packet loss
+3. TCP is more reliable than UDP
+4. TCP can increase latency because it will back off if it knows the network is busy
+5. TCP segments are numbered. You can reliably count on the order of packets received is correct
+   a. You won't get a chunk of a PDF in the middle that should have been at the end
+
+## UDP (User Datagram Protocol)
+
+1. UDP is a connection-less protocol
+2. UDP is less "reliable" since it doesn't require an ack(nowledgement) of each segment
+3. UDP is commonly used for applications that can handle some loss of packets. like streaming audio or video. Use UDP where it's worse if a packet arives late than if it doesn't arrive at all.
+4. UDP is more concerned with getting the data to you immediately than getting it to you complete.
+   a. e.g. A FPS game you need to know the location of the player is right now, not 2 seconds ago when you lost a packet.
+5. UDP is also used in DNS queries
