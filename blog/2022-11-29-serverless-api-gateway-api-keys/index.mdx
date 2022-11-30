@@ -1,0 +1,205 @@
+---
+slug: serverless-api-gateway-api-keys
+title: Serverless Framework - API Gateway API Keys
+authors: [tyler]
+tags: [serverless, api-gateway, api-keys, lambda, aws, serverless-framework]
+---
+
+# API Gateway API Keys with the Serverless Framework
+
+## tl;dr;
+
+We can create API Keys specifically for our API Gateway endpoints that enforce a usage policy.
+We can enforce service-to-service authorization with this method, but this is a **great way to monetize our APIs!**
+Normally we would have a bearer token or a JWT token that we would use to authenticate our requests.
+However, API Keys are a great way to enforce authentication to our API outside of the context that someone is signed
+in to our application.
+
+Code for this example can be found on [GitHub here](https://github.com/TylerSustare/mysite/tree/main/examples/api-key)
+
+<!--truncate-->
+
+## Setup
+
+We'll be using the [Serverless Framework](https://www.serverless.com/framework) to deploy our API Gateway
+and to create our API Keys. If you don't have your AWS environment setup, you can follow the guide
+[here at the Serverless Framework docs](https://www.serverless.com/framework/docs/providers/aws/guide/credentials/).
+
+### Initialize Project with Serverless Framework
+
+Let's use `npx` so we don't have to install the serverless framework globally
+
+```bash
+$ npx serverless
+```
+
+And answer the prompts to create a new project.
+
+```text
+? What do you want to make? AWS - Node.js - Starter
+? What do you want to call this project? api-key
+
+✔ Project successfully created in api-key folder
+
+? What org do you want to add this service to? [Skip]
+
+? Do you want to deploy now? No
+```
+
+### Installing Serverless Framework as a Dev Dependency
+
+We will be using `npx` to run the serverless framework commands in this guide.
+In a production app, it is wise to install the serverless framework as a dev dependency,
+and use `npm run` or `yarn` to run `serverless` commands.
+
+## Modify the `serverless.yml`
+
+Running the `npx serverless` command created a simple `serverless.yml` file for us that should
+look like this.
+
+```yaml
+service: api-key
+
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs14.x # possibly a newer version
+
+functions:
+  hello:
+    handler: handler.hello
+```
+
+All we need to do for this example is to add a few lines. Let's add them.
+
+### Http Event
+
+We have to add an `http` event to our `hello` function so that we can create an API Gateway endpoint.
+This cannot be a new `httpApi` event since that will use the newer
+[HTTP API Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api.html)
+and we need to use classic [REST API Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-rest-api.html)
+to use API Keys. [See the difference between the two here](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-vs-rest.html)
+
+```yaml
+functions:
+  hello:
+    handler: handler.hello
+    events:
+      - http: # not httpApi
+          path: hello
+          method: get
+          private: true
+```
+
+### API Keys
+
+The quickest way to create an API Key is to add the `apiKeys` property to the `provider` object in our `serverless.yml`.
+
+```yaml
+provider:
+  name: aws
+  runtime: nodejs14.x
+  apiKeys:
+    - tyler-tutorial-api-key
+```
+
+## Deploy
+
+Now we can deploy our API from our command line by running the following.
+
+```text
+$ npx serverless deploy
+```
+
+Then we wait... Once the deployment is done, we will get an output to our console with the API Gateway endpoint
+and our api keys.
+
+```text
+api keys: tyler-tutorial-api-key: Ai9VYOx...
+endpoint: GET - https://3jkljz8892.execute-api.us-east-1.amazonaws.com/dev/hello
+```
+
+## Testing our API
+
+Please feel free to use a client like [Postman](https://www.postman.com/) or [Insomnia](https://insomnia.rest/) to test our API.
+But for this example, we will use `curl` like a command line hero.
+
+```text
+$ curl https://3jkljz8892.execute-api.us-east-1.amazonaws.com/dev/hello
+```
+
+We get back the message
+
+```text
+{"message":"Forbidden"}%
+```
+
+Hooray! It doesn't work! We need to add our API Key as a `x-api-key` header to the request.
+
+```text
+$ curl https://3jkljz8892.execute-api.us-east-1.amazonaws.com/dev/hello \
+     -H "x-api-key: Ai9VYOx..."
+```
+
+Now we get back the JSON we expect from our `hello` function.
+
+```text
+{
+  "message": "Go Serverless v3.0! Your function executed successfully!",
+  "input": {
+    "resource": "/hello",
+    "path": "/hello",
+    "httpMethod": "GET",
+    "headers": {
+      "Accept": "*/*",
+      ...
+      "x-api-key": "Ai9VYOx...",
+      ...
+```
+
+## Conclusion
+
+We went through a little example of how to lock down our API endpoints by creating API Keys.
+
+While this is a great way to make a single (or several) API Gateway API Keys for a service-to-service
+authorization, it's not a great way to make hundreds or thousands of API Keys for an API we would
+like to monetize.
+
+To do that we need to programatically create API Keys and assign them to our API Gateway endpoints.
+Ideally with a Usage Plan to rate limit and enforce a quota limit. We will cover that in a future post.
+
+## Resources
+
+Full serverless.yml file
+
+```yaml
+service: api-key
+
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  apiGateway:
+    apiKeys:
+      - tyler-tutorial-api-key
+    # extra not included in the tutorial
+    usagePlan:
+      quota:
+        limit: 50
+        offset: 2
+        period: MONTH
+      throttle:
+        burstLimit: 20
+        rateLimit: 10
+
+functions:
+  hello:
+    handler: handler.hello
+    events:
+      - http:
+          path: hello
+          method: get
+          private: true
+```

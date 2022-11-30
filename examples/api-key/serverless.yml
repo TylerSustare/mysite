@@ -1,0 +1,28 @@
+service: api-key
+
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  apiGateway:
+    apiKeys:
+      - tyler-tutorial-api-key
+    # extra not included in the tutorial
+    usagePlan:
+      quota:
+        limit: 50
+        offset: 2
+        period: MONTH
+      throttle:
+        burstLimit: 20
+        rateLimit: 10
+
+functions:
+  hello:
+    handler: handler.hello
+    events:
+      - http:
+          path: hello
+          method: get
+          private: true
