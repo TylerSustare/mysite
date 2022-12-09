@@ -29,7 +29,7 @@ const config = {
       ({
         docs: {
           sidebarPath: require.resolve("./sidebars.js"),
-          routeBasePath: "/info", // makes the docs available at /info
+          routeBasePath: "/me", // makes the docs available at /me
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl: "https://github.com/TylerSustare/mysite/tree/main/",
@@ -61,7 +61,7 @@ const config = {
             type: "doc",
             docId: "intro",
             position: "left",
-            label: "Tutorial",
+            label: "About Me",
           },
           { to: "/blog", label: "Blog", position: "left" },
           {
@@ -75,11 +75,11 @@ const config = {
         style: "dark",
         links: [
           {
-            title: "Docs",
+            title: "About",
             items: [
               {
-                label: "Tutorial",
-                to: "/info/intro",
+                label: "Me",
+                to: "/me/intro",
               },
             ],
           },
@@ -90,14 +90,14 @@ const config = {
                 label: "Stack Overflow",
                 href: "https://stackoverflow.com/questions/tagged/docusaurus",
               },
-              {
-                label: "Discord",
-                href: "https://discordapp.com/invite/docusaurus",
-              },
-              {
-                label: "Twitter",
-                href: "https://twitter.com/docusaurus",
-              },
+              // {
+              //   label: "Discord",
+              //   href: "https://discordapp.com/invite/docusaurus",
+              // },
+              // {
+              //   label: "Twitter",
+              //   href: "https://twitter.com/docusaurus",
+              // },
             ],
           },
           {
@@ -109,7 +109,7 @@ const config = {
               },
               {
                 label: "GitHub",
-                href: "https://github.com/facebook/docusaurus",
+                href: "https://github.com/tylersustare",
               },
             ],
           },
