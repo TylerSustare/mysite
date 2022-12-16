@@ -37,7 +37,7 @@ function click() {
     headers: {
       "x-api-key": "pN3TptHgF76kDx5yLWzY41HDL27z8TT49GihcH0P",
     },
-  });
+  }).then((response) => response.json()).then((data) => console.log(data));
 }
 
 export default function Home(): JSX.Element {
