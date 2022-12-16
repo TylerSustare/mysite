@@ -18,26 +18,10 @@ function HomepageHeader() {
           <Link className="button button--secondary button--lg" to="/me/intro">
             Docusaurus Tutorial - 5min ⏱️
           </Link>
-
-          <button
-            className="button button--secondary button--lg"
-            onClick={click}
-          >
-            click
-          </button>
         </div>
       </div>
     </header>
   );
-}
-
-function click() {
-  fetch("https://m4i9b5x025.execute-api.us-east-1.amazonaws.com/dev/hello", {
-    method: "GET",
-    headers: {
-      "x-api-key": "pN3TptHgF76kDx5yLWzY41HDL27z8TT49GihcH0P",
-    },
-  }).then((response) => response.json()).then((data) => console.log(data));
 }
 
 export default function Home(): JSX.Element {
