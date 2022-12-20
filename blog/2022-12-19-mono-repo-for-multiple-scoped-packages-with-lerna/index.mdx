@@ -1,0 +1,170 @@
+---
+slug: mono-repo-for-multiple-scoped-packages-with-lerna
+title: Mono Repo For Multiple Scoped Packages With Lerna
+authors: [tyler]
+tags: [mono repo, lerna, scoped packages, npm, javascript, typescript]
+---
+
+# Mono Repo For Multiple Scoped Packages With Lerna
+
+## tl;dr
+
+[Turbo Repo](https://turbo.build/repo) is what I use for my mono repos for my apps. I love it for projects where the
+focus is sharing my own code. [Lerna](https://lerna.js.org/) is now what I use for my mono repos for my packages.
+In this post I'll show why. If you read nothing else, please read the [publishing](#publishing) section. It's the most differentiating
+feature between Turbo and Lerna.
+
+## Intro
+
+Mono repos are a great setup for a fully TypeScript/JavaScript project. I use
+[Turbo Repo](https://turbo.build/repo) for my mono repos projects and it works great.
+However, I recently had a need to create a mono repo for multiple scoped packages and Turbo
+wasn't quite as ergonomic for package focused mono repos. I ended up using [Lerna](https://lerna.js.org/).
+Lerna is a great tool for managing multiple packages in a mono repo. Powered by NX, Lerna is
+slightly more complicated than Turbo for advanced use cases.
+This post will show you how to setup a mono repo with multiple scoped packages using Lerna.
+
+### Cavitate
+
+You absolutely can use Turbo for managing multiple scoped packages. I'm only pointing out how
+easy it is to use Lerna for this use case. I'm not saying that Turbo is better or worse for
+this use case.
+
+## What is a mono repo?
+
+A quick explanation of what a mono repo is. A mono repo is a single git repository that contains
+multiple projects. The projects can be anything from a single package to a full blown application.
+Instead of having multiple git repos where you have to publish a new version of each package then
+bump the version of the package in the application. You can have a single code base where all the
+versions are up to date. These packages are tested together and released together. Usually to a
+service or set of services.
+
+## Multiple scoped packages with Lerna
+
+### Setup
+
+First, we need to create a new directory for our mono repo. To use my real example, let's Initialize
+the Feedback Otter JS mono repo. It's where I keep all my TypeScript/JavaScript packages for Feedback Otter.
+
+```bash
+$ mkdir feedback-otter-js
+$ cd feedback-otter-js
+$ npx lerna init
+```
+
+### Create a package
+
+Now that we have a mono repo, we can create a package. Let's create the `core` package for Feedback Otter.
+
+```bash
+$ npx lerna create @feedback-otter/core
+```
+
+This will create a new directory called `packages/core` and create a `package.json` file in that directory
+with the name `@feedback-otter-js/core`. This is a very slight, but important difference from Turbo in the
+ergonomics of creating multiple scoped packages.
+
+### Writing the package
+
+I won't go into detail on how to write a package, that deserves a post of it's own (coming soon). For now,
+we can use the scaffolded `core` package to display how we would use the `core` package in other packages. If
+you would like to see the code for the `core` package, you can find it on [GitHub](https://FeedbackOtter/feedback-otter-js).
+
+### Using the `core` packages
+
+We can create a new package called `react` that uses the `core` package.
+
+```bash
+$ npx lerna create @feedback-otter/react
+```
+
+Unsurprisingly, this will create a new directory called `packages/react` and create a `package.json` file.
+In that `package.json` file, we can add the `core` package as a dependency.
+
+```json
+{
+  "name": "@feedback-otter/react",
+  "version": "0.0.0",
+  "dependencies": {
+    "@feedback-otter/core": "*"
+  }
+}
+```
+
+The `*` is a placeholder for the version of the `core` package. Lerna will automatically use the version
+that is in our mono repo at the time. Now we can use the `core` package in the `react` package 🎉
+
+```jsx
+import core from "@feedback-otter/core";
+```
+
+### Publishing
+
+The most important feature of Lerna with multiple NPM packages is the ability to [publish multiple packages at once.](https://lerna.js.org/docs/features/version-and-publish)
+This is a huge advantage when making a change to a package like our `core` package.
+We can make a change to the `core` and bump the versions of the other packages at the same time.
+
+```bash
+$ npx lerna publish --no-private # don't publish any private packages
+```
+
+```
+lerna notice cli v5.1.2
+lerna info current version 0.0.0
+lerna info Assuming all packages changed
+? Select a new version (currently 0.0.0) Patch (0.0.1)
+
+Changes:
+ - @feedback-otter/core: 0.0.0 => 0.0.1
+ - @feedback-otter/react: 0.0.0 => 0.0.1
+
+? Are you sure you want to publish these packages? Yes
+lerna info execute Skipping releases
+lerna info git Pushing tags...
+lerna info publish Publishing packages to npm...
+
+Successfully published:
+ - @feedback-otter/core@0.2.1
+ - @feedback-otter/react@0.2.1
+```
+
+:::warning
+Do not name your `publish` and `version` scripts `publish` and `version`.
+This will cause Lerna to try to version/publish again which will cause an error.
+`lerna ERR! EUNCOMMIT Working tree has uncommitted changes, please commit or remove the following changes before continuing:`
+
+```json
+{
+  "scripts": {
+    "publish": "lerna publish",
+    "version": "lerna version"
+  }
+}
+```
+
+Instead name them something like `publish:packages` and `version:packages`, or whatever you prefer.
+
+```json
+{
+  "scripts": {
+    "publish:packages": "lerna publish",
+    "version:packages": "lerna version"
+  }
+}
+```
+
+:::
+
+## Turbo
+
+Turbo can definitely handle multiple packages in a mono repo. However, the focus of Turbo is on
+apps. It makes sharing code between these apps incredibly easy!, but the packages as NPM packages are second
+class citizens (compared to Lerna packages) This is evident when we [create a Turbo app](https://turbo.build/repo/docs/getting-started/create-new).
+Where the main focus is around a Next.js app that uses shared packages.
+
+## Conclusion
+
+Lerna can help you manage multiple packages that depend on each other. It's an easy way to manage multiple
+NPM packages that must be released together. When it comes to multiple scoped packages, Lerna is the clear
+winner. It's easy to setup and use. It's also easy to use with GitHub Actions to automate the publishing of
+packages.
